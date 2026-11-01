@@ -2,81 +2,46 @@
 import { pal, frame, svg, chart, esc, widgetScope } from '../ui.js';
 
 export const widgets = {
-  // ---------- pirámide DIKW ----------
-  dikw(el) {
-    const p = pal();
-    const { cv, out } = frame(el, { title: 'Pirámide DIKW', live: true });
-    const L = [
-      ['Sabiduría', 'Wisdom', 'Decidir bien con lo que se sabe: «cambiamos el tratamiento del paciente 1042».'],
-      ['Conocimiento', 'Knowledge', 'Relacionar mucha información y extraer patrones: «su fiebre sube cada noche desde hace tres días».'],
-      ['Información', 'Information', 'El dato con contexto: «38,5 °C de temperatura del paciente 1042 a las 8:00».'],
-      ['Datos', 'Data', 'Hechos aislados sin significado: <code>38,5</code> · <code>Madrid</code> · <code>2026-01-03</code>.']
-    ];
-    const { s, W, H } = svg(cv);
-    const top = 20, base = H - 20, cx = W / 2 - 40, half = Math.min(W * 0.42, (base - top) * 0.75);
-    const lh = (base - top) / 4;
-    const xAt = (y) => ((y - top) / (base - top)) * half;
-    const cols = [p.blueD, p.blueM, p.blue, p.blueL];
-    const g = s.selectAll('g').data(L).join('g').style('cursor', 'pointer');
-    g.append('path').attr('d', (d, i) => {
-      const y0 = top + i * lh + 3, y1 = top + (i + 1) * lh - 3;
-      return `M${cx - xAt(y0)},${y0} L${cx + xAt(y0)},${y0} L${cx + xAt(y1)},${y1} L${cx - xAt(y1)},${y1} Z`;
-    }).attr('fill', (d, i) => cols[i]).attr('opacity', 0.9);
-    g.append('text').text((d) => d[0]).attr('x', cx).attr('y', (d, i) => top + i * lh + lh / 2 + 8).attr('text-anchor', 'middle')
-      .attr('fill', (d, i) => (i === 3 ? '#0B3A4C' : '#fff')).attr('font-family', 'Karla').attr('font-weight', 700).attr('font-size', (d, i) => (i === 0 ? 17 : 22));
-    // banda de "zona de las bases de datos"
-    const yb = top + 2 * lh;
-    s.append('path').attr('d', `M${cx + xAt(yb) + 18},${yb + 4} v${2 * lh - 8}`).attr('stroke', p.gray).attr('stroke-width', 3).attr('fill', 'none');
-    s.append('text').text('Zona de las').attr('x', cx + xAt(base) * 0.62 + 40).attr('y', yb + lh - 4).attr('fill', p.gray).attr('font-size', 16).attr('font-weight', 700);
-    s.append('text').text('bases de datos').attr('x', cx + xAt(base) * 0.62 + 40).attr('y', yb + lh + 16).attr('fill', p.gray).attr('font-size', 16).attr('font-weight', 700);
-    const sel = (i) => { g.select('path').attr('opacity', (d, j) => (j === i ? 1 : 0.35)); out.innerHTML = `<b>${L[i][0]} (${L[i][1]})</b>: ${L[i][2]}`; };
-    g.on('mouseenter click', (e, d) => sel(L.indexOf(d)));
-    let k = 3; sel(3);
-    const t = setInterval(() => { k = (k + 3) % 4; sel(k); }, 3500);
-    g.on('mouseenter.stop', () => clearInterval(t));
-    return () => clearInterval(t);
-  },
-
   // ---------- funciones del SGBD ----------
   sgbdfun(el) {
     const p = pal();
     const F = [
-      ['Definición', 'Describir la estructura y sus reglas', 'CREATE TABLE, tipos, restricciones'],
-      ['Manipulación', 'Insertar, modificar, borrar y consultar', 'INSERT, UPDATE, DELETE, SELECT'],
-      ['Integridad', 'Impedir datos que violen las reglas', 'Claves, NOT NULL, CHECK, FK'],
-      ['Seguridad', 'Controlar quién puede hacer qué', 'Usuarios, roles, GRANT y REVOKE'],
-      ['Concurrencia', 'Muchos usuarios a la vez sin pisarse', 'Transacciones, bloqueos, MVCC'],
-      ['Recuperación', 'Volver a un estado correcto tras un fallo', 'WAL, copias de seguridad'],
-      ['Diccionario', 'Guardar los metadatos', 'Catálogo: information_schema']
+      ['Definir', 'Describir qué datos hay y cómo son', '«Un pedido tiene número, fecha, cliente y estado»', '2–5'],
+      ['Guardar y recuperar', 'Escribir datos y encontrarlos rápido', '«Dame los pedidos de Ana de este año»', '6–8'],
+      ['Hacer cumplir las reglas', 'Rechazar lo que no tiene sentido', '«No se pueden vender −1 unidades»', '3 y 5'],
+      ['Controlar el acceso', 'Decidir quién ve y quién cambia qué', '«El almacén ve los productos, pero no las direcciones de los clientes»', '9 y 23'],
+      ['Atender a muchos a la vez', 'Que miles de personas trabajen sin pisarse', '«Dos clientes compran el último teclado: solo uno lo consigue»', '10'],
+      ['Recuperarse de fallos', 'Volver a un estado correcto tras un error', '«Se va la luz a mitad de una compra: no queda a medias»', '10'],
+      ['Describirse a sí mismo', 'Guardar los metadatos', '«¿Qué tablas y columnas existen?»', '5']
     ];
     const { cv, out } = frame(el, { title: 'Las siete funciones de un SGBD', live: true });
     const { s, W, H } = svg(cv);
     const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.36;
-    const pos = F.map((f, i) => { const a = -Math.PI / 2 + (i / F.length) * Math.PI * 2; return [cx + Math.cos(a) * R * 1.35, cy + Math.sin(a) * R]; });
+    const pos = F.map((f, i) => { const a = -Math.PI / 2 + (i / F.length) * Math.PI * 2; return [cx + Math.cos(a) * Math.min(R * 1.45, W / 2 - 125), cy + Math.sin(a) * R]; });
     const ln = s.selectAll('line').data(pos).join('line').attr('x1', cx).attr('y1', cy).attr('x2', (d) => d[0]).attr('y2', (d) => d[1]).attr('stroke', p.line).attr('stroke-width', 3);
     s.append('circle').attr('cx', cx).attr('cy', cy).attr('r', 62).attr('fill', p.blue);
     s.append('text').text('SGBD').attr('x', cx).attr('y', cy + 9).attr('text-anchor', 'middle').attr('fill', '#fff').attr('font-family', 'Karla').attr('font-weight', 700).attr('font-size', 28);
     const g = s.selectAll('g.f').data(F).join('g').attr('class', 'f').attr('transform', (d, i) => `translate(${pos[i]})`).style('cursor', 'pointer');
-    g.append('rect').attr('x', -82).attr('y', -26).attr('width', 164).attr('height', 52).attr('rx', 26).attr('fill', p.surface).attr('stroke', p.blue).attr('stroke-width', 2.5);
-    g.append('text').text((d) => d[0]).attr('text-anchor', 'middle').attr('dy', 7).attr('font-family', 'Karla').attr('font-weight', 700).attr('font-size', 19).attr('fill', p.title);
+    g.append('rect').attr('x', -118).attr('y', -26).attr('width', 236).attr('height', 52).attr('rx', 26).attr('fill', p.surface).attr('stroke', p.blue).attr('stroke-width', 2.5);
+    g.append('text').text((d) => d[0]).attr('text-anchor', 'middle').attr('dy', 7).attr('font-family', 'Karla').attr('font-weight', 700).attr('font-size', 18).attr('fill', p.title);
     const sel = (i) => {
       g.select('rect').attr('fill', (d, j) => (j === i ? p.blue : p.surface)); g.select('text').attr('fill', (d, j) => (j === i ? '#fff' : p.title));
       ln.attr('stroke', (d, j) => (j === i ? p.blue : p.line));
-      out.innerHTML = `<b>${F[i][0]}</b>: ${F[i][1]} → <code>${F[i][2]}</code>`;
+      out.innerHTML = `<b>${F[i][0]}</b>: ${F[i][1]}. En Mercado Next: ${F[i][2]} · Temas ${F[i][3]}`;
     };
-    g.on('mouseenter', (e, d) => sel(F.indexOf(d)));
+    g.on('mouseenter click', (e, d) => sel(F.indexOf(d)));
     sel(0);
   },
 
   // ---------- ficheros frente a SGBD ----------
   ficheros(el) {
     const p = pal();
-    el.innerHTML = `<div class="w-title">Simulador: el mismo cliente en tres departamentos<span class="live">INTERACTIVO</span></div>
+    el.innerHTML = `<div class="w-title">Del fichero que se copia a una base de datos compartida<span class="live">INTERACTIVO</span></div>
       <div class="w-controls"><div class="seg"><button data-m="f" class="active">Sistema de ficheros</button><button data-m="d">Con un SGBD</button></div>
-      <button class="btn primary act">Ana se muda a Valencia (lo cambia Ventas)</button><button class="btn rst">↺</button></div>
+      <button class="btn primary act">Ana se muda a Úbeda (lo cambia Ventas)</button><button class="btn rst">↺</button></div>
       <div class="w-canvas" style="display:flex;align-items:center;justify-content:center"></div><div class="w-out"></div>`;
     const cv = el.querySelector('.w-canvas'), out = el.querySelector('.w-out');
-    let mode = 'f', city = { Ventas: 'Madrid', Facturación: 'Madrid', Almacén: 'Madrid' }, shared = 'Madrid';
+    let mode = 'f', city = { Ventas: 'Jaén', Facturación: 'Jaén', Almacén: 'Jaén' }, shared = 'Jaén';
     const apps = ['Ventas', 'Facturación', 'Almacén'];
     const card = (c, bad) => `<div style="font-family:var(--font-mono);font-size:16px;padding:10px 12px;border-radius:10px;border:2px solid ${bad ? p.red : p.line};background:${bad ? 'var(--tint-red)' : 'var(--surface-2)'};transition:.3s">Ana Ruiz<br>ciudad = <b style="color:${bad ? p.red : p.blueD}">${c}</b></div>`;
     const render = () => {
@@ -84,8 +49,8 @@ export const widgets = {
         const vals = new Set(Object.values(city)); const inc = vals.size > 1;
         cv.innerHTML = `<div style="display:flex;gap:30px;width:100%;justify-content:center">${apps.map((a) => `<div style="flex:1;max-width:280px;text-align:center">
           <div class="card" style="padding:14px"><h4 style="font-size:21px">App ${a}</h4></div><div style="font-size:28px;color:var(--muted)">↓</div>
-          <div style="font-size:14px;color:var(--muted);margin-bottom:6px">📄 clientes_${a.toLowerCase().slice(0, 5)}.csv</div>${card(city[a], inc && city[a] !== city.Ventas)}</div>`).join('')}</div>`;
-        out.innerHTML = inc ? '<span class="bad"><b style="color:var(--red)">Inconsistencia</b>: Facturación y Almacén siguen enviando a Madrid. El mismo dato está guardado tres veces.</span>' : 'Tres copias del mismo cliente, una por aplicación (<b>redundancia</b>).';
+          <div style="font-size:14px;color:var(--muted);margin-bottom:6px">📄 pedidos_${a.toLowerCase().slice(0, 5)}.xlsx</div>${card(city[a], inc && city[a] !== city.Ventas)}</div>`).join('')}</div>`;
+        out.innerHTML = inc ? '<span class="bad"><b style="color:var(--red)">Inconsistencia</b>: Facturación y Almacén siguen enviando a Jaén. El mismo dato está guardado tres veces.</span>' : 'Tres copias del mismo cliente, una por aplicación (<b>redundancia</b>).';
       } else {
         cv.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:100%"><div style="display:flex;gap:30px">${apps.map((a) => `<div class="card" style="padding:14px 26px"><h4 style="font-size:21px">App ${a}</h4><p>ve: <b>${shared}</b></p></div>`).join('')}</div>
           <div style="font-size:28px;color:var(--muted)">↓ ↓ ↓</div>
@@ -95,8 +60,8 @@ export const widgets = {
       }
     };
     el.querySelectorAll('[data-m]').forEach((b) => (b.onclick = () => { mode = b.dataset.m; el.querySelectorAll('[data-m]').forEach((x) => x.classList.toggle('active', x === b)); render(); }));
-    el.querySelector('.act').onclick = () => { city.Ventas = 'Valencia'; shared = 'Valencia'; render(); };
-    el.querySelector('.rst').onclick = () => { city = { Ventas: 'Madrid', Facturación: 'Madrid', Almacén: 'Madrid' }; shared = 'Madrid'; render(); };
+    el.querySelector('.act').onclick = () => { city.Ventas = 'Úbeda'; shared = 'Úbeda'; render(); };
+    el.querySelector('.rst').onclick = () => { city = { Ventas: 'Jaén', Facturación: 'Jaén', Almacén: 'Jaén' }; shared = 'Jaén'; render(); };
     render();
   },
 
@@ -178,82 +143,6 @@ export const widgets = {
     ctl.onclick = (e) => { const b = e.target.closest('[data-s]'); if (!b) return; b.classList.toggle('on'); ch.setDatasetVisibility(+b.dataset.s, b.classList.contains('on')); ch.update(); };
     out.innerHTML = '<b>OLTP</b>: altas, pagos, reservas. <b>OLAP</b>: informes y cuadros de mando.';
     return () => ch.destroy();
-  },
-
-  // ---------- línea temporal con zoom ----------
-  timeline(el) {
-    const p = pal();
-    const { cv, out } = frame(el, { title: 'Hitos de las bases de datos', live: true });
-    const ev = [[1966, 'IMS (IBM)', 'Modelo jerárquico, usado en el programa Apolo.'], [1970, 'Codd: modelo relacional', '«A Relational Model of Data for Large Shared Data Banks».'],
-      [1974, 'SEQUEL', 'Origen de SQL en IBM (System R).'], [1976, 'Chen: modelo E/R', 'El modelo Entidad/Relación.'], [1979, 'Oracle V2', 'Primer SQL comercial.'],
-      [1986, 'SQL estándar ANSI', 'SQL se convierte en estándar.'], [1995, 'MySQL', 'Primera versión.'], [1996, 'PostgreSQL', 'Postgres95 adopta el nombre PostgreSQL.'],
-      [2006, 'Bigtable (Google)', 'Artículo que inspira las columnares anchas.'], [2007, 'Dynamo (Amazon)', 'Clave-valor distribuido y consistencia eventual.'],
-      [2009, 'MongoDB y Redis', 'Se populariza el término NoSQL.'], [2012, 'Spanner', 'NewSQL: SQL y ACID a escala global.'], [2014, 'Snowflake y Spark 1.0', 'Analítica en la nube y procesamiento distribuido.'],
-      [2019, 'Delta Lake open source', 'Transacciones sobre el data lake.'], [2021, 'Artículo Lakehouse', 'Data warehouse + data lake.'], [2023, 'Auge BD vectoriales', 'Embeddings para IA generativa.']];
-    const eras = [[1960, 1990, 'Jerárquico y relacional', p.gray], [1990, 2005, 'Open source', p.blueD], [2005, 2015, 'Big Data y NoSQL', p.blue], [2015, 2026, 'Nube, lakehouse e IA', p.mid]];
-    const { s, W, H } = svg(cv);
-    const x0 = d3.scaleLinear().domain([1962, 2026]).range([40, W - 40]);
-    let x = x0.copy();
-    const gE = s.append('g'), gA = s.append('g'), gP = s.append('g');
-    const cy = H / 2;
-    const draw = () => {
-      gE.selectAll('rect').data(eras).join('rect').attr('x', (d) => x(d[0])).attr('width', (d) => Math.max(0, x(d[1]) - x(d[0]))).attr('y', cy - 14).attr('height', 28).attr('fill', (d) => d[3]).attr('opacity', 0.85).attr('rx', 4);
-      gE.selectAll('text').data(eras).join('text').text((d) => d[2]).attr('x', (d) => (x(d[0]) + x(d[1])) / 2).attr('y', cy + 6).attr('text-anchor', 'middle').attr('fill', '#fff').attr('font-size', 15).attr('font-weight', 700);
-      const g = gP.selectAll('g').data(ev).join((en) => { const g = en.append('g').style('cursor', 'pointer'); g.append('line'); g.append('circle'); g.append('text').attr('class', 'y'); g.append('text').attr('class', 'n'); return g; });
-      g.attr('transform', (d) => `translate(${x(d[0])},0)`);
-      g.select('line').attr('y1', (d, i) => (i % 2 ? cy + 14 : cy - 14)).attr('y2', (d, i) => (i % 2 ? cy + 70 + (i % 4 === 1 ? 70 : 0) : cy - 70 - (i % 4 === 0 ? 70 : 0))).attr('stroke', p.line).attr('stroke-width', 2);
-      g.select('circle').attr('cy', (d, i) => (i % 2 ? cy + 70 + (i % 4 === 1 ? 70 : 0) : cy - 70 - (i % 4 === 0 ? 70 : 0))).attr('r', 9).attr('fill', p.surface).attr('stroke', p.blue).attr('stroke-width', 3);
-      g.select('text.y').text((d) => d[0]).attr('text-anchor', 'middle').attr('y', (d, i) => (i % 2 ? cy + 100 + (i % 4 === 1 ? 70 : 0) : cy - 86 - (i % 4 === 0 ? 70 : 0))).attr('font-family', 'Karla').attr('font-weight', 700).attr('font-size', 18).attr('fill', p.blueD);
-      g.select('text.n').text((d) => d[1]).attr('text-anchor', 'middle').attr('y', (d, i) => (i % 2 ? cy + 120 + (i % 4 === 1 ? 70 : 0) : cy - 106 - (i % 4 === 0 ? 70 : 0))).attr('font-size', 15).attr('fill', p.ink);
-      g.on('mouseenter', function (e, d) { d3.select(this).select('circle').attr('fill', p.blue); out.innerHTML = `<b>${d[0]} · ${esc(d[1])}</b>: ${esc(d[2])}`; })
-        .on('mouseleave', function () { d3.select(this).select('circle').attr('fill', p.surface); });
-    };
-    draw();
-    s.call(d3.zoom().scaleExtent([1, 6]).translateExtent([[0, 0], [W, H]]).on('zoom', (e) => { x = e.transform.rescaleX(x0); draw(); }));
-    out.innerHTML = 'Pasa el ratón por cada hito.';
-  },
-
-  // ---------- panorama: burbujas ----------
-  panorama(el) {
-    const p = pal();
-    const { cv } = frame(el, { title: 'Flexibilidad del esquema frente a escalado horizontal', live: true, out: false });
-    const fam = { Relacional: p.gray, NewSQL: p.red, 'Clave-valor': p.blue, Documental: p.blueD, 'Columnar ancha': p.amber, Grafos: p.mid, 'Búsqueda': p.green };
-    const items = [['PostgreSQL', 1.7, 1.9, 'Relacional'], ['MySQL', 1.0, 1.35, 'Relacional'], ['Oracle', 1.3, 2.75, 'Relacional'], ['SQL Server', 0.75, 2.2, 'Relacional'], ['SQLite', 0.8, 0.6, 'Relacional'],
-      ['Redis', 4.3, 2.9, 'Clave-valor'], ['DynamoDB', 3.75, 4.35, 'Clave-valor'], ['MongoDB', 4.4, 3.75, 'Documental'], ['Cassandra', 3.0, 4.95, 'Columnar ancha'],
-      ['Neo4j', 3.9, 1.9, 'Grafos'], ['Elasticsearch', 3.45, 3.25, 'Búsqueda'], ['CockroachDB', 1.6, 4.4, 'NewSQL'], ['Spanner', 1.8, 4.9, 'NewSQL'], ['YugabyteDB', 1.4, 4.1, 'NewSQL']];
-    const labels = { id: 'lbl', afterDatasetsDraw(c) { const ctx = c.ctx; ctx.font = '600 14px Instrument Sans'; ctx.fillStyle = p.ink;
-      c.data.datasets.forEach((ds, i) => { if (!c.isDatasetVisible(i)) return; c.getDatasetMeta(i).data.forEach((pt, j) => ctx.fillText(ds.data[j].n, pt.x + 12, pt.y + 4)); }); } };
-    const ch = chart(cv, { type: 'bubble', plugins: [labels], data: { datasets: Object.entries(fam).map(([f, c]) => ({ label: f, backgroundColor: c + 'CC', borderColor: c,
-      data: items.filter((i) => i[3] === f).map((i) => ({ x: i[1], y: i[2], r: 11, n: i[0] })) })) },
-      options: { scales: { x: { min: 0, max: 5.4, title: { display: true, text: 'Flexibilidad del esquema →', font: { size: 16, weight: 700 } }, ticks: { display: false } },
-        y: { min: 0, max: 5.5, title: { display: true, text: 'Escalado horizontal nativo →', font: { size: 16, weight: 700 } }, ticks: { display: false } } },
-        plugins: { legend: { position: 'right', labels: { usePointStyle: true, font: { size: 15 } } }, tooltip: { callbacks: { label: (c) => `${c.raw.n} · ${c.dataset.label}` } } } } });
-    return () => ch.destroy();
-  },
-
-  // ---------- perfiles: mapa de calor ----------
-  perfiles(el) {
-    const p = pal();
-    const { cv, out } = frame(el, { title: 'Perfiles × áreas (0–3)', live: true });
-    const roles = ['Data engineer', 'DBA', 'Data analyst', 'BI developer', 'Data scientist', 'Data architect', 'Analytics engineer'];
-    const desc = ['Construye las tuberías que mueven y transforman los datos · SQL, Python, Spark, Airflow, Databricks', 'Instala, configura, asegura, respalda y optimiza los SGBD · PostgreSQL, Oracle, SQL Server',
-      'Responde preguntas de negocio con datos · SQL, Excel, Power BI, Tableau', 'Modelos dimensionales y cuadros de mando · SQL, Power BI, Looker', 'Modelos estadísticos y de ML · Python, R, SQL, notebooks',
-      'Decide qué sistemas se usan y cómo encajan · modelado, nube, gobierno', 'Modela los datos ya cargados para analizarlos · SQL, dbt, DW en la nube'];
-    const tasks = ['Modelado', 'SQL avanz.', 'Admin.', 'ETL/ELT', 'Visualiz.', 'Estad./ML', 'Gobierno'];
-    const M = [[2, 3, 2, 3, 1, 1, 2], [2, 3, 3, 1, 0, 0, 3], [1, 3, 0, 1, 3, 2, 1], [3, 3, 1, 2, 3, 0, 1], [1, 2, 0, 1, 2, 3, 1], [3, 2, 2, 2, 1, 0, 3], [3, 3, 1, 3, 2, 0, 2]];
-    const { s, W, H } = svg(cv);
-    const lw = 200, th = 60, cw = (W - lw - 10) / tasks.length, rh = (H - th - 6) / roles.length;
-    const col = d3.scaleLinear().domain([0, 1, 2, 3]).range([p.surface2, p.blueL, p.blue, p.blueD]);
-    s.selectAll('text.t').data(tasks).join('text').attr('class', 't').text((d) => d).attr('x', (d, i) => lw + i * cw + cw / 2).attr('y', th - 14).attr('text-anchor', 'middle').attr('font-size', 15).attr('font-weight', 700).attr('fill', p.muted);
-    const rows = s.selectAll('g.r').data(roles).join('g').attr('class', 'r').attr('transform', (d, i) => `translate(0,${th + i * rh})`).style('cursor', 'pointer');
-    rows.append('text').text((d) => d).attr('x', lw - 14).attr('y', rh / 2 + 6).attr('text-anchor', 'end').attr('font-family', 'Karla').attr('font-weight', 700).attr('font-size', 18).attr('fill', p.title);
-    rows.each(function (r, i) {
-      d3.select(this).selectAll('rect').data(M[i]).join('rect').attr('x', (d, j) => lw + j * cw + 3).attr('y', 3).attr('width', cw - 6).attr('height', rh - 6).attr('rx', 8).attr('fill', (d) => col(d));
-      d3.select(this).selectAll('text.v').data(M[i]).join('text').attr('class', 'v').text((d) => d).attr('x', (d, j) => lw + j * cw + cw / 2).attr('y', rh / 2 + 7).attr('text-anchor', 'middle').attr('font-size', 18).attr('font-weight', 700).attr('fill', (d) => (d >= 2 ? '#fff' : p.muted));
-    });
-    rows.on('mouseenter click', function (e, r) { rows.attr('opacity', (x) => (x === r ? 1 : 0.35)); out.innerHTML = `<b>${r}</b>: ${desc[roles.indexOf(r)]}`; })
-      .on('mouseleave', () => rows.attr('opacity', 1));
-    out.innerHTML = 'Fíjate en la columna <b>SQL avanzado</b>: nadie baja de 2.';
   },
 
   // ---------- diagrama de Chen interactivo ----------

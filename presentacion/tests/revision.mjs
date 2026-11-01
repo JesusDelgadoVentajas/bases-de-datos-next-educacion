@@ -30,7 +30,7 @@ const inspect = async (slide, theme) => {
   layout.push(...problems.map((p) => ({ slide, theme, ...p })));
 };
 try {
-  await page.goto(base); await page.waitForFunction(() => window.__deck?.S.length === 244); await page.evaluate(() => document.fonts.ready);
+  await page.goto(base); await page.waitForFunction(() => window.__deck?.S.length === 256); await page.evaluate(() => document.fonts.ready);
   const slides = await page.evaluate(() => window.__deck.S.map((s, i) => ({ i, id: s.id, sec: s.sec, tema: s.isTema })));
   // 1. Todos los controles; los errores de PostgreSQL se quedan dentro de su interfaz.
   for (const s of slides) {

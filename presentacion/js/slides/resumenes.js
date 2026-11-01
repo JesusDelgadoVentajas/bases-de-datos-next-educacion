@@ -1,10 +1,11 @@
 // Resúmenes de cada tema, tomados del temario en Word
 export const RESUMENES = {
  "1": [
-  "Un SGBD es el software que gestiona una base de datos y asume funciones de integridad, seguridad, concurrencia y recuperación que antes programaba cada aplicación.",
-  "La arquitectura ANSI/SPARC separa los niveles externo, conceptual e interno, y gracias a ello se consigue la independencia física y lógica de los datos.",
-  "OLTP y OLAP son cargas opuestas: muchas transacciones cortas frente a pocas consultas que agregan millones de filas.",
-  "El panorama actual combina el modelo relacional con familias NoSQL y sistemas NewSQL, cada vez más mezclados."
+  "Un sistema necesita una base de datos cuando tiene que recordar información de forma duradera, compartida y fiable; un dato solo se convierte en información con su contexto y sus metadatos.",
+  "La base de datos son los datos; el SGBD, el programa que los gestiona y que asume las reglas, los permisos, la concurrencia y la recuperación que una hoja de cálculo no garantiza.",
+  "Cada etapa de la historia se suma a la anterior, y no hay un modelo de datos mejor que los demás: cada uno encaja con un tipo de problema.",
+  "Registrar (OLTP) y analizar (OLAP) son trabajos distintos que piden bases de datos organizadas de forma distinta; cada vez más viven en la nube como servicios gestionados.",
+  "Confiar en los datos exige calidad, reglas, concurrencia, permisos, privacidad, disponibilidad y recuperación, y cada bloque de la asignatura responde a una etapa del crecimiento de Mercado Next."
  ],
  "2": [
   "El modelo E/R describe la realidad con entidades, atributos y relaciones, sin pensar todavía en tablas.",

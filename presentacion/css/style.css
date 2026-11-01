@@ -67,9 +67,10 @@ body.toc-open #toc { transform: none; }
 :root[data-theme="dark"] .toc-t.current, :root[data-theme="dark"] .toc-s.current { color: var(--blue); }
 
 /* ---------- escenario 16:9 escalado ---------- */
-#viewport { position: fixed; top: 56px; bottom: 46px; left: 0; right: 0; display: grid; place-items: center; overflow: hidden; }
-#stage { width: 1600px; height: 900px; position: relative; transform-origin: center center; }
-.slide { position: absolute; inset: 0; padding: 54px 84px 40px; display: flex; flex-direction: column; opacity: 0; pointer-events: none;
+/* el lienzo se pega a la barra superior; el espacio sobrante queda abajo */
+#viewport { position: fixed; top: 56px; bottom: 46px; left: 0; right: 0; overflow: hidden; }
+#stage { width: 1600px; height: 900px; position: absolute; top: 0; left: 50%; margin-left: -800px; transform-origin: top center; }
+.slide { position: absolute; inset: 0; padding: 36px 84px 40px; display: flex; flex-direction: column; opacity: 0; pointer-events: none;
   transition: opacity .35s ease, transform .35s ease; transform: translateY(12px); }
 .slide.active { opacity: 1; pointer-events: auto; transform: none; }
 :root[data-mode="study"] .slide.active { overflow-y: auto; }

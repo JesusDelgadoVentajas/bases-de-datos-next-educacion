@@ -2,7 +2,7 @@
 
 Presentación de clase de la asignatura **Sistemas de Gestión de Bases de Datos: Relacionales y No Relacionales** (Máster en Big Data & Business Intelligence, Next Educación). Autor: Jesús Delgado Ventajas, AI & Data Engineer.
 
-Sigue la misma estructura que el temario en Word (8 bloques, 24 temas y todos sus apartados). El contenido está resumido para clase y tiene más de 130 gráficos interactivos (algunos en 3D, con tablas editables y simuladores) y 40 consolas de SQL en vivo con PostgreSQL ejecutándose en el navegador (PGlite).
+Sigue la misma estructura que el temario en Word (8 bloques, 24 temas y todos sus apartados). El contenido está resumido para clase y tiene 256 diapositivas, 150 gráficos interactivos (algunos en 3D, con tablas editables y simuladores) y 41 consolas de SQL en vivo con PostgreSQL ejecutándose en el navegador (PGlite).
 
 ## Publicar en GitHub Pages
 

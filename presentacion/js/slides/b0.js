@@ -2,6 +2,7 @@
 import { col, pts, box, w, table, cards, study } from '../deck.js';
 import { pal, three, frame, svg, esc, widgetScope } from '../ui.js';
 import { query, renderResult } from '../sql.js';
+import * as WM from '../w/b0mapa.js';
 
 export const BLOQUES = [
   ['I', 'Fundamentos y modelado', '1–4', '¿Qué es una base de datos y cómo se diseña bien?'],
@@ -40,9 +41,9 @@ export function build(D) {
         ['MySQL', 'Cuando MySQL se comporta distinto que PostgreSQL'], ['Dato', 'Historia y contexto']], 'small')}
         ${study('En modo estudio aparecen notas ampliadas como esta. En modo presentación quedan ocultas para que la diapositiva respire. Cambia de modo con la tecla <kbd>E</kbd>.')}`, 'narrow')}</div>` });
 
-  D.add({ id: 'mapa', label: 'Mapa de la asignatura', html: `<div class="sec">GUÍA</div><h2>Mapa de la asignatura</h2>
-    <p class="lead">Ocho bloques que van de los fundamentos a la IA generativa. Pasa el ratón por cada parada; haz clic para ir al bloque.</p>
-    <div class="slide-body">${w('roadmap')}</div>` });
+  D.add({ id: 'mapa', label: 'Mapa del temario', html: `<div class="sec">GUÍA</div><h2>Mapa del temario</h2>
+    <div class="slide-body">${w('mapa')}</div>
+    ${study('El temario está escrito en dos capas: un <b>núcleo común</b> que todo el mundo debe dominar y unos apartados de <b>ampliación (+)</b> para quien ya tiene base técnica o quiere profundizar. Se organiza en 8 bloques, cada uno con la pregunta a la que responde (de «¿qué es una base de datos y cómo se diseña bien?» a «¿qué aporta la IA generativa?»), 24 temas y 163 apartados numerados como en el Word: 7.2 es el segundo apartado del Tema 7. Muchos temas empiezan con la caja «En este tema» y casi todos terminan con un «Resumen del tema»; el Tema 1 se divide además en cuatro partes. El caso de Mercado Next da continuidad a los ejemplos: se diseña en el Tema 2, se convierte en tablas en el Tema 3 y se consulta en los temas de SQL.')}` });
 
   D.add({ id: 'mercado', label: 'El caso: Mercado Next', html: `<div class="sec">GUÍA</div><h2>El caso que nos acompaña: Mercado Next</h2>
     <p class="lead">Una tienda online ficticia: clientes que hacen pedidos, pedidos formados por líneas, productos en categorías y una plantilla de empleados. Está cargada de verdad en tu navegador.</p>
@@ -59,6 +60,8 @@ export function build(D) {
 }
 
 export const widgets = {
+  ...WM.widgets,
+
   // ---------- portada: escena 3D clara ----------
   async cover(el) {
     const life = widgetScope(el);
@@ -169,31 +172,6 @@ export const widgets = {
       camera.lookAt(0, 0, 0);
     });
     return () => { window.removeEventListener('pointermove', onMove); T.dispose(); };
-  },
-
-  // ---------- mapa de ruta de los 8 bloques ----------
-  roadmap(el) {
-    const p = pal();
-    const { cv, out } = frame(el, { title: 'Ruta de la asignatura', live: true });
-    const { s, W, H } = svg(cv);
-    const n = BLOQUES.length, x0 = 90, x1 = W - 90;
-    const pts = BLOQUES.map((b, i) => [x0 + (i * (x1 - x0)) / (n - 1), H / 2 + (i % 2 ? 70 : -70)]);
-    const line = d3.line().curve(d3.curveCatmullRom.alpha(0.6));
-    const path = s.append('path').attr('d', line(pts)).attr('fill', 'none').attr('stroke', p.line).attr('stroke-width', 10).attr('stroke-linecap', 'round');
-    const prog = s.append('path').attr('d', line(pts)).attr('fill', 'none').attr('stroke', p.blue).attr('stroke-width', 10).attr('stroke-linecap', 'round');
-    const L = prog.node().getTotalLength();
-    prog.attr('stroke-dasharray', L).attr('stroke-dashoffset', L).transition().duration(1800).ease(d3.easeCubicOut).attr('stroke-dashoffset', 0);
-    const g = s.selectAll('g.st').data(BLOQUES).join('g').attr('class', 'st').attr('transform', (d, i) => `translate(${pts[i]})`).style('cursor', 'pointer');
-    g.append('circle').attr('r', 0).attr('fill', p.surface).attr('stroke', p.blue).attr('stroke-width', 5)
-      .transition().delay((d, i) => 200 + i * 180).duration(500).attr('r', 44);
-    g.append('text').text((d) => d[0]).attr('text-anchor', 'middle').attr('dy', 10).attr('font-family', 'Karla').attr('font-weight', 700).attr('font-size', 30).attr('fill', p.blueD);
-    g.append('text').text((d) => d[1]).attr('text-anchor', 'middle').attr('y', (d, i) => (i % 2 ? 80 : -64)).attr('font-family', 'Karla').attr('font-weight', 700).attr('font-size', 21).attr('fill', p.title);
-    g.append('text').text((d) => `Temas ${d[2]}`).attr('text-anchor', 'middle').attr('y', (d, i) => (i % 2 ? 104 : -88)).attr('font-size', 16).attr('fill', p.muted);
-    const show = (d) => { out.innerHTML = `<b>Bloque ${d[0]} · ${esc(d[1])}</b> — ${esc(d[3])}`; };
-    g.on('mouseenter', function (e, d) { d3.select(this).select('circle').transition().duration(200).attr('r', 54).attr('fill', p.blue); d3.select(this).select('text').attr('fill', '#fff'); show(d); })
-      .on('mouseleave', function () { d3.select(this).select('circle').transition().duration(200).attr('r', 44).attr('fill', p.surface); d3.select(this).select('text').attr('fill', p.blueD); })
-      .on('click', (e, d) => { location.hash = 'b' + d[0]; });
-    show(BLOQUES[0]);
   },
 
   // ---------- esquema de Mercado Next con datos reales ----------
