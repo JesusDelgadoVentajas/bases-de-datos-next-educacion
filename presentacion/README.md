@@ -48,6 +48,7 @@ git push -u origin main
 - Cada diapositiva tiene su propia URL (`…/#s8.1`), así que se puede enlazar directamente a un apartado.
 - El SQL en vivo usa una base de datos **Mercado Next** real. Se puede modificar libremente; el botón **↺ Reiniciar BD** la deja como al principio. Cada alumno trabaja con su propia copia dentro de su navegador.
 - El botón ⇩ de la barra superior descarga el temario completo en Word.
+- La pestaña **Ejercicios** (`…/#ej`, o `…/#ej/8` para un tema) reúne 106 ejercicios autoevaluables de test, clasificar, ordenar y SQL. El botón **Corregir** dice si la respuesta está bien, enseña la solución y explica por qué. Los de SQL se ejecutan sobre una copia limpia de Mercado Next y se compara su resultado con el de la solución; los de DDL y DML se corrigen con una consulta de comprobación sobre cómo queda la base de datos. El progreso se guarda en `localStorage`.
 
 ## Estructura
 
@@ -60,6 +61,9 @@ js/sql.js             SQL en vivo con PGlite
 js/ui.js              utilidades (gráficos, 3D, tablas editables, resaltado)
 js/slides/b0…b8.js    contenido de cada bloque
 js/w/*.js             gráficos interactivos de cada bloque
+js/ejercicios.js      pestaña de ejercicios autoevaluables y su corrección
+js/ejercicios/*.js    banco de ejercicios por bloque (enunciado, solución, por qué)
+tests/ejercicios.mjs  prueba en Node las soluciones SQL y errores típicos (node tests/ejercicios.mjs)
 lib/                  PGlite 0.5.9, three.js 0.170, Chart.js 4.4.7, d3 7.9 (locales, sin CDN)
 assets/               logo, fuentes, base de datos Mercado Next y temario en Word
 ```

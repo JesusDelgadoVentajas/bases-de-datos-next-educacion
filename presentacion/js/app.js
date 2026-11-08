@@ -12,6 +12,7 @@ import * as B6 from './slides/b6.js';
 import * as B7 from './slides/b7.js';
 import * as B8 from './slides/b8.js';
 import { RESUMENES } from './slides/resumenes.js';
+import { initEjercicios } from './ejercicios.js';
 
 const MODULES = [B0, B1, B2, B3, B4, B5, B6, B7, B8];
 const WIDGETS = Object.assign({ sql: (el, a) => playground(el, a) }, ...MODULES.map((m) => m.widgets || {}));
@@ -88,12 +89,15 @@ function go(i, push = true) {
   el.classList.add('active');
   el.scrollTop = 0;
   mountIn(el);
-  const s = S[i];
+  paintBar();
+  if (push) history.replaceState(null, '', '#' + S[i].id);
+  updateToc();
+}
+function paintBar() {
+  const i = cur, s = S[i];
   $('#counter').textContent = `${i + 1} / ${S.length}`;
   $('#progress-fill').style.width = `${((i + 1) / S.length) * 100}%`;
   $('#crumb').innerHTML = [s.b && `<b>Bloque ${s.b.n}</b> · ${s.b.title}`, s.t && `Tema ${s.t.n}`, s.sec && s.sec].filter(Boolean).join('  ›  ') || 'Sistemas de Gestión de Bases de Datos';
-  if (push) history.replaceState(null, '', '#' + s.id);
-  updateToc();
 }
 const next = () => go(cur + 1), prev = () => go(cur - 1);
 const byId = (id) => S.findIndex((s) => s.id === id);
@@ -123,7 +127,25 @@ function updateToc() {
 }
 buildToc();
 
+// ---------- ejercicios autoevaluables ----------
+const EJ = initEjercicios({
+  temas: S.filter((s) => s.isTema).map((s) => ({ n: s.t.n, title: s.t.title, b: s.b })),
+  irADiapositiva: (id) => { closeEj(); const i = byId(id); if (i >= 0) go(i); },
+  alCambiar: () => syncSeg()
+});
+// al salir de los ejercicios se vuelve a la diapositiva en la que se estaba
+function closeEj() {
+  if (!EJ.abierto()) return;
+  EJ.cerrar();
+  history.replaceState(null, '', '#' + S[cur].id);
+  paintBar(); fit();
+}
+
 // ---------- modos ----------
+function syncSeg() {
+  const ej = EJ.abierto();
+  $$('.seg button').forEach((b) => b.classList.toggle('active', ej ? b.dataset.view === 'ej' : b.dataset.mode === root.dataset.mode));
+}
 function setTheme(t) {
   root.dataset.theme = t;
   try { localStorage.setItem('sgbd-theme', t); } catch (e) { /* sin almacenamiento */ }
@@ -132,7 +154,7 @@ function setTheme(t) {
 }
 function setMode(m) {
   root.dataset.mode = m;
-  $$('.seg button').forEach((b) => b.classList.toggle('active', b.dataset.mode === m));
+  syncSeg();
   try { localStorage.setItem('sgbd-mode', m); } catch (e) { /* sin almacenamiento */ }
   remount();
 }
@@ -141,7 +163,7 @@ const toggleFocus = () => document.body.classList.toggle('focus');
 const toggleToc = () => document.body.classList.toggle('toc-open');
 
 $('#btn-theme').onclick = () => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
-$$('.seg button').forEach((b) => (b.onclick = () => setMode(b.dataset.mode)));
+$$('.seg button').forEach((b) => (b.onclick = () => (b.dataset.view ? EJ.abrir('') : (closeEj(), setMode(b.dataset.mode)))));
 $('#btn-full').onclick = toggleFull;
 $('#btn-focus').onclick = toggleFocus;
 $('#btn-toc').onclick = toggleToc;
@@ -159,6 +181,12 @@ document.addEventListener('keydown', (e) => {
   if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const k = e.key;
+  if (EJ.abierto()) { // en los ejercicios el teclado no pasa diapositivas
+    if (k === 't' || k === 'T') setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
+    else if (k === '?') $('#help').hidden = !$('#help').hidden;
+    else if (k === 'Escape') $('#help').hidden = true;
+    return;
+  }
   if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') { e.preventDefault(); next(); }
   else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); prev(); }
   else if (k === 'Home') go(0);
@@ -184,11 +212,18 @@ stage.addEventListener('touchend', (e) => {
 // ---------- arranque ----------
 try {
   const t = localStorage.getItem('sgbd-theme'); if (t) root.dataset.theme = t;
-  const m = localStorage.getItem('sgbd-mode'); if (m) { root.dataset.mode = m; $$('.seg button').forEach((b) => b.classList.toggle('active', b.dataset.mode === m)); }
+  const m = localStorage.getItem('sgbd-mode'); if (m) { root.dataset.mode = m; syncSeg(); }
 } catch (e) { /* sin almacenamiento */ }
-window.addEventListener('hashchange', () => { const i = byId(location.hash.slice(1)); if (i >= 0) go(i, false); });
+const rutaEj = (h) => (/^#ej(\/|$)/.test(h) ? h.slice(4) : null); // #ej, #ej/7, #ej/repaso
+window.addEventListener('hashchange', () => {
+  const r = rutaEj(location.hash);
+  if (r !== null) { EJ.abrir(r); return; }
+  const i = byId(location.hash.slice(1));
+  if (i >= 0) { closeEj(); go(i, false); }
+});
 const start = byId(location.hash.slice(1));
 go(start >= 0 ? start : 0, false);
+if (rutaEj(location.hash) !== null) EJ.abrir(rutaEj(location.hash));
 window.__deck = { S, go };
 // precarga PostgreSQL en segundo plano para que el SQL en vivo responda al instante
 setTimeout(() => db().catch(() => {}), 1500);

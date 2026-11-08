@@ -15,6 +15,8 @@ async function create() {
   return pg;
 }
 export function db() { return (dbPromise ??= create()); }
+// Copia nueva e independiente de Mercado Next (la usan los ejercicios)
+export const freshDB = create;
 export async function resetDB() {
   const old = dbPromise; dbPromise = null;
   if (old) { try { await (await old).close(); } catch (e) { /* ignorar */ } }
